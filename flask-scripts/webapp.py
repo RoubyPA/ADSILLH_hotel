@@ -66,7 +66,7 @@ def del_in_collection(title):
         try:
             client = MongoClient("mongodb://mongodb.emi.u-bordeaux.fr:27017")
             db = client['prouby']
-            coll = db['testcollection']
+            coll = db['hotel']
             ret = coll.remove(cmd)
             return str(ret)
         except Execption as e:
@@ -173,8 +173,8 @@ def form():
 
 @app.route("/form_add")
 def form_add():
-        if 'username' in session:
-                if session['username'] == 'admin':
+        if 'user' in session:
+                if session['user'] == 'admin':
                         return app.send_static_file("form_add.html")
         return '<h1>Access deny !</h1>'
 
@@ -207,14 +207,24 @@ def form_reservation(error=None):
 ################################################################################
 ## Login
 ################################################################################
-@app.route("/login")
+@app.route("/form_login")
+def form_login():
+        return app.send_static_file("form_login.html")
+
+@app.route("/login", methods=['POST'])
 def login_admin():
-        session['username'] = 'admin'
-        return "<h1>Login : OK</h1>"
+        if request.form['user'] == 'admin':
+                session['user'] = request.form['user']
+                session['password'] = 'admin'
+        elif request.form['user'] == request.form['password']:
+                session['user'] = request.form['user']
+        else:
+                return "<h1>Cannot login !</h1>"
+        return "<h1>Login with user : "+ session['user'] +"</h1>"
 
 @app.route("/whoami")
 def whoami():
-        return "<h1>Login : " + session['username'] + "</h1>"
+        return "<h1>Login : "+ session['user'] +"</h1>"
 ################################################################################
 ## Useless
 ################################################################################
