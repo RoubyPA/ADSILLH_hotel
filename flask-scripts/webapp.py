@@ -42,6 +42,9 @@ def nosql_test():
 
 @app.route("/add", methods=['POST'])
 def add_after_form():
+        if session['user'] != 'admin':
+                print ("[del_in_collection] access demy for user: "+ session['user'])
+                return app.send_static_file("error_access_deny.html")
         id = request.form['id']
         name = request.form['name']
         num = request.form['num']
@@ -57,11 +60,19 @@ def add_after_form():
 
 @app.route("/del", methods=['POST'])
 def del_after_form():
+        if session['user'] != 'admin':
+                print ("[del_in_collection] access demy for user: "+ session['user'])
+                return app.send_static_file("error_access_deny.html")
+
         title = request.form['title']
         page = del_in_collection(title)
         return page
 
 def del_in_collection(title):
+        if session['user'] != 'admin':
+                print ("[del_in_collection] access demy for user: "+ session['user'])
+                return app.send_static_file("error_access_deny.html")
+
         cmd = {'title': str(title)}
         try:
             client = MongoClient("mongodb://mongodb.emi.u-bordeaux.fr:27017")
@@ -73,6 +84,10 @@ def del_in_collection(title):
             return str(e)
 
 def add_in_collection(id, name, num, floor, description, size, tags, bed, bathroom):
+        if session['user'] != 'admin':
+                print ("[add_in_collection] access demy for user: "+ session['user'])
+                return app.send_static_file("error_access_deny.html")
+
         post = [{
                 "id": str(id),
                 "chambre_name": str(name),
@@ -165,29 +180,32 @@ def display_client():
 ################################################################################
 @app.route("/add_room")
 def form_add():
-        if 'user' in session:
-                if session['user'] == 'admin':
-                        return app.send_static_file("form_add.html")
+        if session['user'] == 'admin':
+                return app.send_static_file("form_add.html")
+        print ("[add_room] access demy for user:"+ session['user'])
         return app.send_static_file("error_access_deny.html")
 
 @app.route("/del_room")
 def form_del():
-        if 'user' in session:
-                if session['user'] == 'admin':
-                        return app.send_static_file("form_del_by_title.html")
+        if session['user'] == 'admin':
+                return app.send_static_file("form_del_by_title.html")
+        print ("[del_room] access demy for user: "+ session['user'])
         return app.send_static_file("error_access_deny.html")
 
 @app.route("/list_client")
 def form_client(error=None):
-        command = 'select email from hotel.clients;'
-        data = sql_to_rows(command)
-        return render_template("form_client.html", rows=data, hasError=error)
+        if session['user'] == 'admin':
+                command = 'select email from hotel.clients;'
+                data = sql_to_rows(command)
+                return render_template("form_client.html", rows=data, hasError=error)
+        print ("[del_room] access demy for user: "+ session['user'])
+        return app.send_static_file("error_access_deny.html")
 
 ################################################################################
 ## User page
 ################################################################################
 @app.route("/")
-def hello():
+def index():
         return app.send_static_file("index.html") # TODO create template
 
 @app.route("/after_form", methods=['POST'])
