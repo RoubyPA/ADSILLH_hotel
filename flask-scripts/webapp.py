@@ -35,7 +35,7 @@ def nosql_test():
                 for post in coll.find():
                         ret += str(post)
                         ret += "</br>"
-                        ret += "</p>"
+                ret += "</p>"
                 return ret
         except Execption as e:
                 return str(e)
@@ -87,9 +87,9 @@ def add_in_collection(id, name, num, floor, description, size, tags, bed, bathro
                 "like": 0
         }]
         try:
-                client = MongoClient("mongodb://mongodb.emi.u-bordeaux.fr:27017")
+                client = MongoClient("mongodb://localhost")
                 db = client['prouby']
-                coll = db['testcollection']
+                coll = db['hotel']
 
                 coll.insert(post)
                 return "<p>"+str(post)+"</p>"
@@ -101,29 +101,29 @@ def chambre():
         id = request.form['id']
         cmd = {'id': str(id)}
         try:
-                client = MongoClient("mongodb://mongodb.emi.u-bordeaux.fr:27017")
+                client = MongoClient("mongodb://localhost")
                 db = client['prouby']
-                coll = db['testcollection']
+                coll = db['hotel']
 
                 ret = coll.find_one(cmd)
                 return "</p>" + str(ret) + "</p>"
         except Execption as e:
                 return str(e)
 
-@app.route("/list_chambre_test")
+@app.route("/list_chambre")
 def get_list_chambre():
         try:
-                client = MongoClient("mongodb://mongodb.emi.u-bordeaux.fr:27017")
+                client = MongoClient("mongodb://localhost")
                 db = client['prouby']
-                coll = db['testcollection']
+                coll = db['hotel']
 
                 ret = "{"
                 for post in coll.find():
                         if ret != "{":
                                 ret += ","
-                                ret += str(post)
-                                ret += "}"
-                                return ret
+                        ret += str(post)
+                        ret += "}"
+                return ret
         except Execption as e:
                 return str(e)
 
@@ -131,28 +131,24 @@ def get_list_chambre():
 ## ProsgreSql
 ################################################################################
 def sql_to_rows(command):
+        # try:
         print('Trying to connect to the database')
-        try:
-                conn = psycopg2.connect("host=dbserver dbname=prouby user=prouby")
-                cur = conn.cursor()
-                print('Trying to execute command: ' + command)
-                try:
-                        cur.execute(command)
-                        rows = cur.fetchall()
-                        cur.close()
-                        conn.close()
-                        return rows
-                except Exception as e:
-                        return form_client(error=str(e))
-        except Exception as e:
-                return form_client(error=str(e))
+        conn = psycopg2.connect("host=localhost dbname=prouby user=prouby password=xxx")
+        print('Connection OK !')
+        cur = conn.cursor()
+        print('Trying to execute command: ' + command)
+        cur.execute(command)
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return rows
+        # except Exception as e:
+        #         return form_client(error=str(e))
 
 @app.route("/client", methods=['POST'])
 def display_client():
         data = request.form['mail']
-        # Try to connect to an existing database
-        print('Trying to connect to the database')
-        command = 'select * from HotelBis.Client where mail=\'' + data + '\';'
+        command = 'select * from hotel.clients where mail=\'' + data + '\';'
         rows = sql_to_rows(command)
         page = '<p>'
         for client in rows:
@@ -165,34 +161,41 @@ def display_client():
         return page
 
 ################################################################################
-## User form
+## Admin page
 ################################################################################
-@app.route("/form")
-def form():
-        return app.send_static_file("form.html")
-
-@app.route("/form_add")
+@app.route("/add_room")
 def form_add():
         if 'user' in session:
                 if session['user'] == 'admin':
                         return app.send_static_file("form_add.html")
-        return '<h1>Access deny !</h1>'
+        return app.send_static_file("error_access_deny.html")
 
-@app.route("/form_del")
+@app.route("/del_room")
 def form_del():
-        return app.send_static_file("form_del_by_title.html")
+        if 'user' in session:
+                if session['user'] == 'admin':
+                        return app.send_static_file("form_del_by_title.html")
+        return app.send_static_file("error_access_deny.html")
+
+@app.route("/list_client")
+def form_client(error=None):
+        command = 'select email from hotel.clients;'
+        data = sql_to_rows(command)
+        return render_template("form_client.html", rows=data, hasError=error)
+
+################################################################################
+## User page
+################################################################################
+@app.route("/")
+def hello():
+        return app.send_static_file("index.html") # TODO create template
 
 @app.route("/after_form", methods=['POST'])
 def after_form():
         data = "<h1>Bonjour " + request.form['prenom'] + "</h1>"
         return data
 
-@app.route("/form_client")
-def form_client(error=None):
-        command = 'select mail from HotelBis.Client;'
-        data = sql_to_rows(command)
-        return render_template("form_client.html", rows=data, hasError=error)
-
+# Temps fonction -> TODO -> dinamic room list
 @app.route("/form_reservation")
 def tmp_form_reservation(error=None):
         # data = get_list_chambre()
@@ -200,19 +203,23 @@ def tmp_form_reservation(error=None):
 
 @app.route("/reservation")
 def form_reservation(error=None):
-        command = 'select mail from HotelBis.Client;'
+        # if user not connected
+        if session['user'] == "" or 'user' not in session:
+                return form_login()
+
+        command = 'select email from hotel.clients;'
         data = sql_to_rows(command)
         return render_template("form_reservation.html", rows=data)
 
 ################################################################################
 ## Login
 ################################################################################
-@app.route("/form_login")
+@app.route("/login")
 def form_login():
         return app.send_static_file("form_login.html")
 
-@app.route("/login", methods=['POST'])
-def login_admin():
+@app.route("/login_post", methods=['POST'])
+def login():
         if request.form['user'] == 'admin':
                 session['user'] = request.form['user']
                 session['password'] = 'admin'
@@ -220,23 +227,25 @@ def login_admin():
                 session['user'] = request.form['user']
         else:
                 return "<h1>Cannot login !</h1>"
-        return "<h1>Login with user : "+ session['user'] +"</h1>"
+        ## TODO create template
+        return "<h1>Login with user : "+ session['user'] +"</h1><h2><a href=\"/reservation\">Réservation</a><h2>"
 
 @app.route("/whoami")
 def whoami():
         return "<h1>Login : "+ session['user'] +"</h1>"
+
+@app.route("/disconnect")
+def disconnect():
+        session['user'] = ""
+        return "<h1>Diconnected</h1>"
+
 ################################################################################
 ## Useless
 ################################################################################
-@app.route("/")
-def hello():
-        data = "<b>Hello world!</b><br>Python "+str(sys.version)
-        return data
-
-@app.route("/hello/<name>")
-def hello_name(name):
-	data= "<b>Hello "+name+"</b>. Nous sommes le " + time.strftime("%d/%m/%Y")
-	return data
+# @app.route("/hello/<name>")
+# def hello_name(name):
+# 	data= "<b>Hello "+name+"</b>. Nous sommes le " + time.strftime("%d/%m/%Y")
+# 	return data
 
 ################################################################################
 ## NE SURTOUT PAS MODIFIER

@@ -31,6 +31,7 @@ CREATE TABLE Hotel.Clients (
   nom text NOT NULL,
   prenom text NOT NULL,
   adresse text NOT NULL,
+  email text NOT NULL,
   PRIMARY KEY (num_client),
   UNIQUE (nom, prenom, adresse)
 );

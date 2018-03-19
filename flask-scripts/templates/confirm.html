@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Reservation Succesful !</title>
+  </head>
+  <body>
+    
+    <p>
+      Reservation succesfull !! <br /> <br />
+      {% for client in clients %}
+      Nom : {{client[1]}} <br />
+      Prenom : {{client[2]}} <br />
+      Adresse Mail {{client[3]}} <br /> <br />
+      {% endfor %}
+      Chambre numéro : {{chambre}}<br />
+      Du {{date_d}} au {{date_f}}
+    </p>
+  </body>
+</html>

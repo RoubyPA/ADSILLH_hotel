@@ -42,17 +42,17 @@ INSERT INTO Hotel.Consommations VALUES('Sauna',11);
 -- Clients
 --
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Duchemin','Albert','10 rue des Jumeaux à Strasbourg');
+  VALUES(DEFAULT,'Duchemin','Albert','10 rue des Jumeaux à Strasbourg', 'duchemin.albert@mail.com');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Duchemin','Albert','13 rue de la Paix à Saillans (33141)');
+  VALUES(DEFAULT,'Duchemin','Albert','13 rue de la Paix à Saillans (33141)', 'duchemin.albert@gmail.com');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Dupont','Jean','13 rue de la Paix à Saillans (33141)');
+  VALUES(DEFAULT,'Dupont','Jean','13 rue de la Paix à Saillans (33141)', 'dupont.jean@gmail.com');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Dupond','Jean','13 rue de la Paix à Saillans (33141)');
+  VALUES(DEFAULT,'Dupond','Jean','13 rue de la Paix à Saillans (33141)', 'dupond.jean@gmail.com');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Martin','Albert','13 rue de la Paix à Saillans (33141)');
+  VALUES(DEFAULT,'Martin','Albert','13 rue de la Paix à Saillans (33141)', 'martin.du.33@gmail.com');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Smith','Winston','1984 rue de la Paix à Saillans (33141)');
+  VALUES(DEFAULT,'Smith','Winston','1984 rue de la Paix à Saillans (33141)', 'smith.winston@oseania.com');
 
 --
 -- Reservations
