@@ -6,7 +6,7 @@ from flask import *
 from pymongo import MongoClient
 
 ################################################################################
-## NE PAS MODIFIER LA LIGNE SUIVANTE
+## NE PAS MODIFIER LES LIGNES SUIVANTE
 ################################################################################
 app = Flask(__name__)
 app.secret_key = 'yoloswagg'.encode('utf8')
@@ -42,7 +42,7 @@ def nosql_test():
 
 @app.route("/add", methods=['POST'])
 def add_after_form():
-        if session['user'] != 'admin':
+        if session['user'] != 'prouby':
                 print ("[del_in_collection] access demy for user: "+ session['user'])
                 return app.send_static_file("error_access_deny.html")
         id = request.form['id']
@@ -60,7 +60,7 @@ def add_after_form():
 
 @app.route("/del", methods=['POST'])
 def del_after_form():
-        if session['user'] != 'admin':
+        if session['user'] != 'prouby':
                 print ("[del_in_collection] access demy for user: "+ session['user'])
                 return app.send_static_file("error_access_deny.html")
 
@@ -69,7 +69,7 @@ def del_after_form():
         return page
 
 def del_in_collection(title):
-        if session['user'] != 'admin':
+        if session['user'] != 'prouby':
                 print ("[del_in_collection] access demy for user: "+ session['user'])
                 return app.send_static_file("error_access_deny.html")
 
@@ -84,7 +84,7 @@ def del_in_collection(title):
             return str(e)
 
 def add_in_collection(id, name, num, floor, description, size, tags, bed, bathroom):
-        if session['user'] != 'admin':
+        if session['user'] != 'prouby':
                 print ("[add_in_collection] access demy for user: "+ session['user'])
                 return app.send_static_file("error_access_deny.html")
 
@@ -125,7 +125,7 @@ def chambre():
         except Execption as e:
                 return str(e)
 
-@app.route("/list_chambre")
+@app.route("/chambre/list")
 def get_list_chambre():
         try:
                 client = MongoClient("mongodb://localhost")
@@ -160,46 +160,48 @@ def sql_to_rows(command):
         # except Exception as e:
         #         return form_client(error=str(e))
 
-@app.route("/client", methods=['POST'])
-def display_client():
-        data = request.form['mail']
-        command = 'select * from hotel.clients where mail=\'' + data + '\';'
-        rows = sql_to_rows(command)
-        page = '<p>'
-        for client in rows:
-                page += str(client[0]) + ' : ' + str(client[1]) + ' : '
-                page += str(client[2]) + ' : ' + str(client[3]) + '<br />'
-
-        if page == '<p>':
-                return form_client(error="No data")
-        page += '</p>'
-        return page
-
 ################################################################################
 ## Admin page
 ################################################################################
-@app.route("/add_room")
+@app.route("/admin/chambre/add")
 def form_add():
-        if session['user'] == 'admin':
+        if session['user'] == 'prouby':
                 return app.send_static_file("form_add.html")
         print ("[add_room] access demy for user:"+ session['user'])
         return app.send_static_file("error_access_deny.html")
 
-@app.route("/del_room")
+@app.route("/admin/chambre/del")
 def form_del():
-        if session['user'] == 'admin':
+        if session['user'] == 'prouby':
                 return app.send_static_file("form_del_by_title.html")
         print ("[del_room] access demy for user: "+ session['user'])
         return app.send_static_file("error_access_deny.html")
 
-@app.route("/list_client")
+@app.route("/admin/client/list")
 def form_client(error=None):
-        if session['user'] == 'admin':
+        if session['user'] == 'prouby':
                 command = 'select email from hotel.clients;'
                 data = sql_to_rows(command)
                 return render_template("form_client.html", rows=data, hasError=error)
         print ("[del_room] access demy for user: "+ session['user'])
         return app.send_static_file("error_access_deny.html")
+
+@app.route("/admin/client/show", methods=['POST'])
+def display_client():
+        if session['user'] != 'prouby':
+                return app.send_static_file("error_access_deny.html")
+
+        data = request.form['mail']
+        command = 'select * from hotel.clients where email=\'' + data + '\';'
+        rows = sql_to_rows(command)
+        page = '<p>'
+        for client in rows:
+                page += str(client) + '<br>'
+
+        if page == '<p>':
+                return form_client(error="No data")
+        page += '</p>'
+        return page
 
 ################################################################################
 ## User page
@@ -208,25 +210,48 @@ def form_client(error=None):
 def index():
         return app.send_static_file("index.html") # TODO create template
 
-@app.route("/after_form", methods=['POST'])
-def after_form():
-        data = "<h1>Bonjour " + request.form['prenom'] + "</h1>"
-        return data
+@app.route("/reservation/")
+def select_date ():
+        if 'user' not in session:
+                return form_login()
 
-# Temps fonction -> TODO -> dinamic room list
-@app.route("/form_reservation")
-def tmp_form_reservation(error=None):
-        # data = get_list_chambre()
-        return render_template("tmp_reservation_chambre.html")
+        return render_template("form_select_date.html")
 
-@app.route("/reservation")
+
+@app.route("/reservation/validation", methods=['POST'])
+def reservation_validation ():
+        if 'user' not in session:
+                return form_login()
+
+        session['chambre'] = str(request.form['chambre'])
+
+        data = "<ul>"
+        data += "<li>User = "+ session['nom'] +" "+ session['prenom'] +"</li>"
+        data += "<li>Début = " + session['debut'] + "</li>"
+        data += "<li>Fin = " + session['fin'] + "</li>"
+        data += "<li>Chambre = " + session['chambre'] + "</li>"
+        data += "</ul>"
+
+        return "<h1>Validation</h1>" + data
+
+@app.route("/reservation/select/chambre", methods=['POST'])
 def form_reservation(error=None):
         # if user not connected
         if session['user'] == "" or 'user' not in session:
                 return form_login()
 
-        command = 'select email from hotel.clients;'
+        session['debut'] = request.form['debut']
+        session['fin'] = request.form['fin']
+
+        command = 'SELECT * FROM hotel.disponibilite '
+        command += 'WHERE libredu <= \''+session['debut']+'\' '
+        command += '  AND au >= \''+session['fin']+'\' '
+        command += 'ORDER BY etage, libredu, au, numero;'
+
         data = sql_to_rows(command)
+        if data == []:
+                return "<h1>Pas de disponibilité</h1>"
+
         return render_template("form_reservation.html", rows=data)
 
 ################################################################################
@@ -236,23 +261,36 @@ def form_reservation(error=None):
 def form_login():
         return app.send_static_file("form_login.html")
 
-@app.route("/login_post", methods=['POST'])
+@app.route("/login/connect", methods=['POST'])
 def login():
-        if request.form['user'] == 'admin':
+        if request.form['user'] == "prouby" and request.form['password'] == "passw0rd":
                 session['user'] = request.form['user']
-                session['password'] = 'admin'
-        elif request.form['user'] == request.form['password']:
+                session['nom'] = "Rouby"
+                session['prenom'] = "Pierre-Antoine"
+                return "<h1>Welcome administrator !</h1>"
+
+        # Possible SQL injection
+        command = 'SELECT nom,prenom,address FROM hotel.clients '
+        command += 'WHERE password = \''+request.form['password']+'\' '
+        command += '  AND email = \''+request.form['user']+'\' '
+        command += ';'
+
+        data = sql_to_rows(command)
+        if data != "":
                 session['user'] = request.form['user']
+                session['nom'] = str(data[0][0])
+                session['prenom'] = str(data[0][1])
         else:
                 return "<h1>Cannot login !</h1>"
-        ## TODO create template
-        return "<h1>Login with user : "+ session['user'] +"</h1><h2><a href=\"/reservation\">Réservation</a><h2>"
 
-@app.route("/whoami")
+        ## TODO create template
+        return "<h1>Login with user : "+session['nom']+" "+session['prenom']+"</h1><h2><a href=\"/reservation\">Réservation</a><h2>"
+
+@app.route("/login/whoami")
 def whoami():
         return "<h1>Login : "+ session['user'] +"</h1>"
 
-@app.route("/disconnect")
+@app.route("/login/disconnect")
 def disconnect():
         session['user'] = ""
         return "<h1>Diconnected</h1>"

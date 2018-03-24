@@ -42,17 +42,17 @@ INSERT INTO Hotel.Consommations VALUES('Sauna',11);
 -- Clients
 --
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Duchemin','Albert','10 rue des Jumeaux à Strasbourg', 'duchemin.albert@mail.com');
+  VALUES(DEFAULT,'Duchemin','Albert','10 rue des Jumeaux à Strasbourg', 'duchemin.albert@mail.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Duchemin','Albert','13 rue de la Paix à Saillans (33141)', 'duchemin.albert@gmail.com');
+  VALUES(DEFAULT,'Duchemin','Albert','13 rue de la Paix à Saillans (33141)', 'duchemin.albert@gmail.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Dupont','Jean','13 rue de la Paix à Saillans (33141)', 'dupont.jean@gmail.com');
+  VALUES(DEFAULT,'Dupont','Jean','13 rue de la Paix à Saillans (33141)', 'dupont.jean@gmail.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Dupond','Jean','13 rue de la Paix à Saillans (33141)', 'dupond.jean@gmail.com');
+  VALUES(DEFAULT,'Dupond','Jean','13 rue de la Paix à Saillans (33141)', 'dupond.jean@gmail.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Martin','Albert','13 rue de la Paix à Saillans (33141)', 'martin.du.33@gmail.com');
+  VALUES(DEFAULT,'Martin','Albert','13 rue de la Paix à Saillans (33141)', 'martin.du.33@gmail.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 INSERT INTO Hotel.Clients
-  VALUES(DEFAULT,'Smith','Winston','1984 rue de la Paix à Saillans (33141)', 'smith.winston@oseania.com');
+  VALUES(DEFAULT,'Smith','Winston','1984 rue de la Paix à Saillans (33141)', 'smith.winston@oseania.com', '5f4dcc3b5aa765d61d8327deb882cf99');
 
 --
 -- Reservations

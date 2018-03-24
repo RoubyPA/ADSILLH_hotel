@@ -5,10 +5,12 @@
     <title>Login</title>
   </head>
   <body>
-    <form action="/login_post" method="POST">
-      user :     <input type="text"     name="user" /> <br />
-      password : <input type="password" name="password" /> <br />
-      <input type="submit" value="Connect" />
+    <form action="/login/connect" method="POST">
+      <table>
+        <tr><th>User</th><th><input type="text" name="user" /></th></tr>
+        <tr><th>Password</th><th><input type="password" name="password" /></th></tr>
+        <tr><th></th><th><input type="submit" value="Connect" /></th></tr>
+      </table>
     </form>
   </body>
 </html>
